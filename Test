@@ -1,0 +1,16 @@
+
+die() { echo "$@" >&2; exit 1; }
+
+cd $(dirname $0)
+
+( cd client/
+  # TODO: We need this until we update SSL. I'm not sure why SSL is even needed
+  # though, this is a static website.
+  export NODE_OPTIONS=--openssl-legacy-provider
+  npm install
+  npm run build
+)
+
+git rev-parse --verify gh-pages 2>/dev/null ||
+    die "gh-pages branch not checked out locally"
+./git-commit-filetree gh-pages client/build
